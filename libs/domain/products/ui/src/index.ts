@@ -1,2 +1,2 @@
-export * from './lib/product-table';
-export * from './lib/product-form';
+export * from './lib/components/product-table';
+export * from './lib/components/product-form';

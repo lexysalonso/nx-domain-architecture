@@ -1,1 +1,1 @@
-export * from './lib/clientes-list.component';
+export * from './lib/components/clientes-list.component';
