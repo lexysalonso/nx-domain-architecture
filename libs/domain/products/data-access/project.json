@@ -1,0 +1,11 @@
+{
+  "name": "products-data-access",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/domain/products/data-access/src",
+  "prefix": "products-data-access",
+  "projectType": "library",
+  "tags": ["type:data-access", "scope:products"],
+  "targets": {
+    "lint": { "executor": "@nx/eslint:lint" }
+  }
+}

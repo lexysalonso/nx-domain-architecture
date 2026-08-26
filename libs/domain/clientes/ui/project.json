@@ -1,0 +1,20 @@
+{
+  "name": "clientes-ui",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/domain/clientes/ui/src",
+  "prefix": "clientes-ui",
+  "projectType": "library",
+  "tags": ["type:ui", "scope:clientes"],
+  "targets": {
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "coverage/libs/domain/clientes/ui"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

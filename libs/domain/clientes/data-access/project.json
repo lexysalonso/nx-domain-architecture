@@ -1,0 +1,20 @@
+{
+  "name": "clientes-data-access",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/domain/clientes/data-access/src",
+  "prefix": "clientes-data-access",
+  "projectType": "library",
+  "tags": ["type:data-access", "scope:clientes"],
+  "targets": {
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "coverage/libs/domain/clientes/data-access"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

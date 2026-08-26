@@ -1,0 +1,20 @@
+{
+  "name": "clientes-features",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/domain/clientes/features/src",
+  "prefix": "clientes-features",
+  "projectType": "library",
+  "tags": ["type:feature", "scope:clientes"],
+  "targets": {
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "coverage/libs/domain/clientes/features"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
