@@ -34,8 +34,8 @@ export class ProductsFacade {
 
   addProduct(form: ProductFormValue): void {
     const payload = { ...form, active: true };
-    this.service.addProduct(payload).subscribe((newProduct) => {
-      this._products.update((list) => [...list, newProduct]);
+    this.service.addProduct(payload).subscribe(() => {
+      this.loadProducts();
     });
   }
 
