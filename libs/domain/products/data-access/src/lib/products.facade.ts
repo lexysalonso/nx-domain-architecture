@@ -27,9 +27,18 @@ export class ProductsFacade {
 
   readonly products = this._products.asReadonly();
 
+  private readonly search$ = toObservable(this.search).pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+    switchMap((term) => this.service.getProducts(term)),
+    takeUntilDestroyed(this.destroyRef),
+  );
+
   init(): void {
     this.loadProducts();
-    this.setupSearch();
+    this.search$.subscribe({
+      next: (products) => this._products.set(products),
+    });
   }
 
   private loadProducts(): void {
@@ -42,17 +51,6 @@ export class ProductsFacade {
         this._loading.set(false);
       },
       error: () => this._loading.set(false),
-    });
-  }
-
-  private setupSearch(): void {
-    toObservable(this.search).pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      switchMap((term) => this.service.getProducts(term)),
-      takeUntilDestroyed(this.destroyRef),
-    ).subscribe({
-      next: (products) => this._products.set(products),
     });
   }
 
