@@ -42,4 +42,10 @@ export class ProductsService {
     this.writeStorage(updated);
     return of(newProduct).pipe(delay(300));
   }
+
+  getFiltersProduct(prod: string): Observable<any> {
+    const products = this.ensureSeeded();
+    console.log('llega', prod);
+    return of(products.filter((ele) => ele.name.includes(prod)));
+  }
 }

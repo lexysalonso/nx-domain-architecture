@@ -6,26 +6,25 @@ import { ProductsService } from './products.service';
 export class ProductsFacade {
   private readonly service = inject(ProductsService);
 
-  private readonly _products = signal<Product[]>([]);
+  private readonly _allProducts = signal<Product[]>([]);
   private readonly _loading = signal<boolean>(false);
-  private readonly _statusFilter = signal<'all' | 'active' | 'inactive'>('all');
+  private readonly _search = signal<string>('');
 
   readonly loading = this._loading.asReadonly();
-  readonly statusFilter = this._statusFilter.asReadonly();
+  readonly search = this._search.asReadonly();
 
   readonly products = computed(() => {
-    const filter = this._statusFilter();
-    const list = this._products();
-    if (filter === 'active') return list.filter((p) => p.active);
-    if (filter === 'inactive') return list.filter((p) => !p.active);
-    return list;
+    const query = this._search().toLowerCase().trim();
+    const list = this._allProducts();
+    if (!query) return list;
+    return list.filter((p) => p.name.toLowerCase().includes(query));
   });
 
   loadProducts(): void {
     this._loading.set(true);
     this.service.getProducts().subscribe({
       next: (products) => {
-        this._products.set(products);
+        this._allProducts.set(products);
         this._loading.set(false);
       },
       error: () => this._loading.set(false),
@@ -39,7 +38,7 @@ export class ProductsFacade {
     });
   }
 
-  setStatusFilter(filter: 'all' | 'active' | 'inactive'): void {
-    this._statusFilter.set(filter);
+  setSearch(value: string): void {
+    this._search.set(value);
   }
 }
