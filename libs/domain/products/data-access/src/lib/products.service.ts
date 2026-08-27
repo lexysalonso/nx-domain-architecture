@@ -30,8 +30,12 @@ export class ProductsService {
     return stored;
   }
 
-  getProducts(): Observable<Product[]> {
-    const products = this.ensureSeeded();
+  getProducts(search?: string): Observable<Product[]> {
+    let products = this.ensureSeeded();
+    if (search?.trim()) {
+      const term = search.toLowerCase().trim();
+      products = products.filter((p) => p.name.toLowerCase().includes(term));
+    }
     return of(products).pipe(delay(500));
   }
 
@@ -41,11 +45,5 @@ export class ProductsService {
     const updated = [...products, newProduct].slice(-MAX_PRODUCTS);
     this.writeStorage(updated);
     return of(newProduct).pipe(delay(300));
-  }
-
-  getFiltersProduct(prod: string): Observable<any> {
-    const products = this.ensureSeeded();
-    console.log('llega', prod);
-    return of(products.filter((ele) => ele.name.includes(prod)));
   }
 }

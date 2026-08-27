@@ -33,6 +33,6 @@ export class ListProductsContainer implements OnInit {
   );
 
   ngOnInit(): void {
-    this.facade.loadProducts();
+    this.facade.init();
   }
 }
