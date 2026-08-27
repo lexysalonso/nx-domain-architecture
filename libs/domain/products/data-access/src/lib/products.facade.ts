@@ -24,8 +24,21 @@ export class ProductsFacade {
 
   readonly loading = this._loading.asReadonly();
   readonly search = signal<string>('');
+  readonly statusFilter = signal<'all' | 'active' | 'inactive'>('all');
 
-  readonly products = this._products.asReadonly();
+  readonly products = computed(() => {
+    const list = this._products();
+    const query = this.search().toLowerCase().trim();
+    const status = this.statusFilter();
+
+    return list
+      .filter((p) => {
+        if (status === 'active') return p.active;
+        if (status === 'inactive') return !p.active;
+        return true;
+      })
+      .filter((p) => !query || p.name.toLowerCase().includes(query));
+  });
 
   private readonly search$ = toObservable(this.search).pipe(
     debounceTime(300),
@@ -63,5 +76,9 @@ export class ProductsFacade {
 
   setSearch(value: string): void {
     this.search.set(value);
+  }
+
+  setStatusFilter(filter: 'all' | 'active' | 'inactive'): void {
+    this.statusFilter.set(filter);
   }
 }

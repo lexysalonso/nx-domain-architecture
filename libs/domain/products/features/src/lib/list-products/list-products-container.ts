@@ -20,7 +20,9 @@ import {
   template: `
     <container-product-header
       [search]="facade.search()"
+      [statusFilter]="facade.statusFilter()"
       (searchChange)="facade.setSearch($event)"
+      (statusChange)="facade.setStatusFilter($event)"
     />
     <app-product-table [products]="viewModels()" [loading]="facade.loading()" />
   `,
