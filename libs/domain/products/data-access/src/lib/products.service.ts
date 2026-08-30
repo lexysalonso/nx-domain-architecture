@@ -1,7 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { delay } from 'rxjs/operators';
-import { Product, SEED_PRODUCTS } from '@proj/domain/products/model';
+import {
+  Product,
+  ProductFormValue,
+  SEED_PRODUCTS,
+} from '@proj/domain/products/model';
 
 const STORAGE_KEY = 'proj_products';
 const MAX_PRODUCTS = 10;
@@ -45,5 +49,19 @@ export class ProductsService {
     const updated = [...products, newProduct].slice(-MAX_PRODUCTS);
     this.writeStorage(updated);
     return of(newProduct).pipe(delay(300));
+  }
+
+  updateProduct(id: string, form: ProductFormValue): Observable<Product> {
+    const products = this.ensureSeeded();
+    const existing = products.find((p) => p.id === id);
+
+    if (!existing) {
+      return throwError(() => new Error(`Producto con id ${id} no encontrado`));
+    }
+
+    const updated: Product = { ...existing, ...form, id };
+    const newList = products.map((p) => (p.id === id ? updated : p));
+    this.writeStorage(newList);
+    return of(updated).pipe(delay(300));
   }
 }

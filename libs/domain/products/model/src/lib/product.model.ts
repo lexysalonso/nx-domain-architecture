@@ -4,6 +4,7 @@ export interface Product {
   price: number;
   stock: number;
   active: boolean;
+  category: string;
 }
 
 export interface ProductViewModel {
@@ -13,10 +14,12 @@ export interface ProductViewModel {
   stock: number;
   statusLabel: 'Activo' | 'Inactivo';
   statusClass: string;
+  category: string;
 }
 
 export interface ProductFormValue {
   name: string;
   price: number;
   stock: number;
+  category: string;
 }

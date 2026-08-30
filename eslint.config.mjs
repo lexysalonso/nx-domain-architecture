@@ -41,6 +41,7 @@ export default [
             { sourceTag: 'scope:core', onlyDependOnLibsWithTags: ['scope:core'] },
             { sourceTag: 'scope:shared', onlyDependOnLibsWithTags: ['scope:shared', 'scope:core'] },
             { sourceTag: 'scope:clientes', onlyDependOnLibsWithTags: ['scope:clientes', 'scope:shared', 'scope:core'] },
+            { sourceTag: 'scope:products', onlyDependOnLibsWithTags: ['scope:products', 'scope:shared', 'scope:core'] },
             { sourceTag: 'type:model', onlyDependOnLibsWithTags: ['type:model'] },
             { sourceTag: 'type:data-access', onlyDependOnLibsWithTags: ['type:model', 'type:data-access'] },
             { sourceTag: 'type:feature', onlyDependOnLibsWithTags: ['type:model', 'type:data-access', 'type:feature', 'type:ui'] },

@@ -9,14 +9,20 @@ import { ProductFormComponent } from '@proj/domain/products/ui';
   standalone: true,
   imports: [ProductFormComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<app-product-form (submit)="onSubmit($event)" />`,
+  template: `<app-product-form
+    [error]="facade.error()"
+    (submit)="onSubmit($event)"
+  />`,
 })
 export class AddProductContainer {
-  private readonly facade = inject(ProductsFacade);
+  readonly facade = inject(ProductsFacade);
   private readonly router = inject(Router);
 
   onSubmit(value: ProductFormValue): void {
-    this.facade.addProduct(value);
-    this.router.navigate(['/products']);
+    this.facade.addProduct(value)?.subscribe({
+      next: () => {
+        this.router.navigate(['/products']);
+      },
+    });
   }
 }

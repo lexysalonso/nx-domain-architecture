@@ -1,4 +1,10 @@
-import { Component, ChangeDetectionStrategy, output } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  output,
+  input,
+  effect,
+} from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ProductFormValue } from '@proj/domain/products/model';
@@ -19,10 +25,18 @@ import { ProductFormValue } from '@proj/domain/products/model';
           ← Volver
         </a>
       </div>
-
+      @if (error()) {
+        <div
+          class="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-200"
+        >
+          {{ error() }}
+        </div>
+      }
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >Nombre</label
+          >
           <input
             formControlName="name"
             placeholder="Nombre del producto"
@@ -34,7 +48,9 @@ import { ProductFormValue } from '@proj/domain/products/model';
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Precio</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >Precio</label
+          >
           <input
             formControlName="price"
             type="number"
@@ -48,7 +64,9 @@ import { ProductFormValue } from '@proj/domain/products/model';
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >Stock</label
+          >
           <input
             formControlName="stock"
             type="number"
@@ -74,12 +92,24 @@ import { ProductFormValue } from '@proj/domain/products/model';
 export class ProductFormComponent {
   private readonly fb = new FormBuilder();
   submit = output<ProductFormValue>();
+  error = input<string | null>(null);
+
+  product = input<ProductFormValue | null>(null);
 
   form = this.fb.group({
     name: ['', Validators.required],
     price: [0, [Validators.required, Validators.min(0.01)]],
     stock: [0, [Validators.required, Validators.min(0)]],
   });
+
+  constructor() {
+    effect(() => {
+      const p = this.product();
+      if (p) {
+        this.form.patchValue({ name: p.name, price: p.price, stock: p.stock });
+      }
+    });
+  }
 
   onSubmit(): void {
     if (this.form.invalid) return;
