@@ -1,6 +1,8 @@
 {
     "compileOnSave": false,
     "compilerOptions": {
+        "ignoreDeprecations": "5.0",
+        "baseUrl": ".",
         "rootDir": ".",
         "sourceMap": true,
         "declaration": false,
@@ -21,23 +23,17 @@
             "@proj/core": [
                 "./libs/core/src/index.ts"
             ],
-            "@proj/shared": [
-                "./libs/shared/src/index.ts"
-            ],
-            "@proj/domain/clientes/model": [
-                "./libs/domain/clientes/model/src/index.ts"
-            ],
             "@proj/domain/clientes/data-access": [
                 "./libs/domain/clientes/data-access/src/index.ts"
             ],
             "@proj/domain/clientes/features": [
                 "./libs/domain/clientes/features/src/index.ts"
             ],
+            "@proj/domain/clientes/model": [
+                "./libs/domain/clientes/model/src/index.ts"
+            ],
             "@proj/domain/clientes/ui": [
                 "./libs/domain/clientes/ui/src/index.ts"
-            ],
-            "@proj/domain/products/model": [
-                "./libs/domain/products/model/src/index.ts"
             ],
             "@proj/domain/products/data-access": [
                 "./libs/domain/products/data-access/src/index.ts"
@@ -45,8 +41,14 @@
             "@proj/domain/products/features": [
                 "./libs/domain/products/features/src/index.ts"
             ],
+            "@proj/domain/products/model": [
+                "./libs/domain/products/model/src/index.ts"
+            ],
             "@proj/domain/products/ui": [
                 "./libs/domain/products/ui/src/index.ts"
+            ],
+            "@proj/shared": [
+                "./libs/shared/src/index.ts"
             ]
         }
     },
