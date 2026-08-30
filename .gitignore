@@ -54,3 +54,4 @@ vitest.config.*.timestamp*
 # AI tools
 .opencode/
 opencode.json
+vite.config.*.timestamp*
