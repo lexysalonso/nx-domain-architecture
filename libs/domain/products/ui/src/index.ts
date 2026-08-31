@@ -1,4 +1,4 @@
-// products-ui: componentes presentacionales (tontos).
+// ui: componentes presentacionales (tontos).
 // Reglas:
 //   - Solo inputs/outputs (signals).
 //   - SIN inject(), SIN facade, SIN acceso a data-access.
