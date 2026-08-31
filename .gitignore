@@ -55,3 +55,6 @@ vitest.config.*.timestamp*
 .opencode/
 opencode.json
 vite.config.*.timestamp*
+# Local tool state (do not commit)
+.atl/
+.vscode/
