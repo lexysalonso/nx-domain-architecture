@@ -11,24 +11,27 @@ import { toProductViewModel } from '@proj/domain/products/model';
 import {
   ContainerProductHeaderComponent,
   ProductTableComponent,
+  ErrorBannerComponent,
 } from '@proj/domain/products/ui';
 
 @Component({
   selector: 'app-list-products-container',
   standalone: true,
-  imports: [ProductTableComponent, ContainerProductHeaderComponent],
+  imports: [
+    ProductTableComponent,
+    ContainerProductHeaderComponent,
+    ErrorBannerComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (facade.error(); as error) {
-      <div
-        class="flex items-center justify-between p-4 mb-4 text-red-700 bg-red-100 rounded-lg"
-      >
-        <span>{{ error }}</span>
-        <button (click)="facade.loadProducts()" class="text-sm underline">
-          Reintentar
-        </button>
-      </div>
+      <app-error-banner
+        [message]="error"
+        [showRetry]="true"
+        (retry)="facade.loadProducts()"
+      />
     }
+
     <container-product-header
       [search]="facade.search()"
       [statusFilter]="facade.statusFilter()"
@@ -47,6 +50,7 @@ import {
 export class ListProductsContainer implements OnInit {
   protected readonly facade = inject(ProductsFacade);
   private readonly router = inject(Router);
+
   protected readonly viewModels = computed(() =>
     this.facade.products().map(toProductViewModel),
   );

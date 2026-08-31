@@ -16,10 +16,9 @@ const MAX_PRODUCTS = 10;
 export class ProductsService {
   private readonly _http = inject(HttpClient);
   private readonly _apiUrl = inject(API_URL);
-  private readonly _baseUrl = `${this._apiUrl}/products4234234`;
+  private readonly _baseUrl = `${this._apiUrl}/products`;
 
   private readStorage(): Product[] {
-
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       return raw ? JSON.parse(raw) : [];
@@ -61,7 +60,7 @@ export class ProductsService {
     const updated = [...products, newProduct].slice(-MAX_PRODUCTS);
     this.writeStorage(updated);
     // Ej post aback
-    return this._http.post<Product>(this._baseUrl, newProduct);
+    this._http.post<Product>(this._baseUrl, newProduct);
     return of(newProduct).pipe(delay(300));
   }
 
