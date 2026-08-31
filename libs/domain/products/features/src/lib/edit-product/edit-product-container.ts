@@ -7,9 +7,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProductsFacade } from '@proj/domain/products/data-access';
-import {
-  ProductFormValue,
-} from '@proj/domain/products/model';
+import { ProductFormValue } from '@proj/domain/products/model';
 import { ProductFormComponent } from '@proj/domain/products/ui';
 
 @Component({
@@ -19,7 +17,7 @@ import { ProductFormComponent } from '@proj/domain/products/ui';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (product(); as p) {
-      <app-product-form [product]="p" (submit)="onSubmit($event)" />
+      <app-product-form [product]="p" (formSubmit)="onSubmit($event)" />
     }
   `,
 })

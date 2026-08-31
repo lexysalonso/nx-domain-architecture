@@ -21,7 +21,7 @@ import { ProductViewModel } from '@proj/domain/products/model';
       >
         No hay productos.
       </div>
-    } @else {
+    } @else if (!loading() && products().length > 0) {
       <div class="rounded-lg border border-gray-200 overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
@@ -94,6 +94,14 @@ import { ProductViewModel } from '@proj/domain/products/model';
                     Editar
                   </button>
                 </td>
+                <td class="px-4 py-3 text-sm text-gray-700">
+                  <button
+                    class="text-red-600 hover:text-red-900"
+                    (click)="delete.emit(p.id); $event.stopPropagation()"
+                  >
+                    Eliminar
+                  </button>
+                </td>
               </tr>
             }
           </tbody>
@@ -107,4 +115,5 @@ export class ProductTableComponent {
   loading = input<boolean>(false);
   select = output<{ id: string; product: ProductViewModel }>();
   edit = output<string>(); // NUEVO
+  delete = output<string>(); // NUEVO
 }

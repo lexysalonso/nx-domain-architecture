@@ -11,7 +11,7 @@ import { ProductFormComponent } from '@proj/domain/products/ui';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<app-product-form
     [error]="facade.error()"
-    (submit)="onSubmit($event)"
+    (formSubmit)="onSubmit($event)"
   />`,
 })
 export class AddProductContainer {

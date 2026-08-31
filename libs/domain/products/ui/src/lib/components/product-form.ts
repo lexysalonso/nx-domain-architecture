@@ -91,7 +91,7 @@ import { ProductFormValue } from '@proj/domain/products/model';
 })
 export class ProductFormComponent {
   private readonly fb = new FormBuilder();
-  submit = output<ProductFormValue>();
+  formSubmit = output<ProductFormValue>();
   error = input<string | null>(null);
 
   product = input<ProductFormValue | null>(null);
@@ -113,6 +113,6 @@ export class ProductFormComponent {
 
   onSubmit(): void {
     if (this.form.invalid) return;
-    this.submit.emit(this.form.getRawValue() as ProductFormValue);
+    this.formSubmit.emit(this.form.getRawValue() as ProductFormValue);
   }
 }

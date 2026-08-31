@@ -6,10 +6,7 @@ import {
   DestroyRef,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import {
-  Product,
-  ProductFormValue,
-} from '@proj/domain/products/model';
+import { Product, ProductFormValue } from '@proj/domain/products/model';
 import { ProductsService } from './products.service';
 import {
   debounceTime,
@@ -67,7 +64,7 @@ export class ProductsFacade {
     });
   }
 
-  private loadProducts(): void {
+  loadProducts(): void {
     this._loading.set(true);
     this.service
       .getProducts()
@@ -77,7 +74,24 @@ export class ProductsFacade {
           this._products.set(products);
           this._loading.set(false);
         },
-        error: () => this._loading.set(false),
+        error: () => {
+          this._error.set('Error al cargar los productos');
+          this._loading.set(false);
+        },
+      });
+  }
+
+  delete(id: string): void {
+    this.service
+      .deleteProduct(id)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        tap(() =>
+          this._products.update((list) => list.filter((el) => el.id !== id)),
+        ),
+      )
+      .subscribe({
+        next: () => this.loadProducts(),
       });
   }
 
@@ -106,6 +120,7 @@ export class ProductsFacade {
       return;
     }
     const payload = { ...form, active: true };
+    console.log('Adding product with payload:', payload);
     return this.service
       .addProduct(payload)
       .pipe(tap(() => this.loadProducts()));

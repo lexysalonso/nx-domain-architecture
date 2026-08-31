@@ -19,16 +19,28 @@ import {
   imports: [ProductTableComponent, ContainerProductHeaderComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    @if (facade.error(); as error) {
+      <div
+        class="flex items-center justify-between p-4 mb-4 text-red-700 bg-red-100 rounded-lg"
+      >
+        <span>{{ error }}</span>
+        <button (click)="facade.loadProducts()" class="text-sm underline">
+          Reintentar
+        </button>
+      </div>
+    }
     <container-product-header
       [search]="facade.search()"
       [statusFilter]="facade.statusFilter()"
       (searchChange)="facade.setSearch($event)"
       (statusChange)="facade.setStatusFilter($event)"
     />
+
     <app-product-table
       [products]="viewModels()"
       [loading]="facade.loading()"
       (edit)="onEdit($event)"
+      (delete)="onDelete($event)"
     />
   `,
 })
@@ -41,6 +53,14 @@ export class ListProductsContainer implements OnInit {
 
   onEdit(id: string): void {
     this.router.navigate(['/products/edit', id]);
+  }
+
+  onDelete(id: string): void {
+    const resultConfirm = confirm(
+      'Desea eliminar este elemento permanentemente.',
+    );
+    if (!resultConfirm) return;
+    this.facade.delete(id);
   }
 
   ngOnInit(): void {
