@@ -1,0 +1,141 @@
+<main class="min-h-screen bg-slate-50">
+  <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+
+    <!-- Header -->
+    <header class="mb-6">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p class="text-sm font-medium text-indigo-600">
+            Beauty business
+          </p>
+
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            Appointments
+          </h1>
+
+          <p class="mt-1 text-sm text-slate-500">
+            Manage your upcoming appointments and their status.
+          </p>
+        </div>
+
+        @if (!loading() && !error()) {
+        <div class="text-sm text-slate-500">
+          {{ filteredAppointments().length }}
+          {{ filteredAppointments().length === 1 ? 'appointment' : 'appointments' }}
+        </div>
+        }
+      </div>
+    </header>
+
+    <!-- Success message -->
+    @if (successMessage()) {
+    <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
+      role="status" aria-live="polite">
+      <div class="flex items-center gap-2">
+        <span class="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white"
+          aria-hidden="true">
+          ✓
+        </span>
+
+        <span>{{ successMessage() }}</span>
+      </div>
+    </div>
+    }
+
+    <!-- Error -->
+    @if (error()) {
+    <section class="mb-6 rounded-xl border border-red-200 bg-red-50 p-6" role="alert">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 class="font-semibold text-red-900">
+            Something went wrong
+          </h2>
+
+          <p class="mt-1 text-sm text-red-700">
+            {{ error() }}
+          </p>
+        </div>
+
+        <button type="button"
+          class="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          (click)="loadAppointments()">
+          Retry
+        </button>
+      </div>
+    </section>
+    }
+
+    <!-- Filters -->
+    @if (!error()) {
+    <section class="mb-6">
+      <app-appointment-filters [locations]="locations()" [selectedLocation]="selectedLocation()"
+        [selectedStatus]="selectedStatus()" [hasActiveFilters]="hasActiveFilters()"
+        (locationChange)="onLocationChange($event)" (statusChange)="onStatusChange($event)" (clear)="clearFilters()" />
+    </section>
+    }
+
+    <!-- Loading -->
+    @if (loading()) {
+    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3" aria-label="Loading appointments" aria-busy="true">
+      @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+      <div class="animate-pulse rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="mb-5 flex justify-between">
+          <div class="h-5 w-24 rounded bg-slate-200"></div>
+          <div class="h-6 w-20 rounded-full bg-slate-200"></div>
+        </div>
+
+        <div class="space-y-3">
+          <div class="h-5 w-3/4 rounded bg-slate-200"></div>
+          <div class="h-4 w-1/2 rounded bg-slate-200"></div>
+          <div class="h-4 w-2/3 rounded bg-slate-200"></div>
+        </div>
+      </div>
+      }
+    </section>
+    }
+
+    <!-- Content -->
+    @if (!loading() && !error()) {
+
+    @if (filteredAppointments().length === 0) {
+
+    <!-- Empty -->
+    <section class="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+      <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100" aria-hidden="true">
+        <span class="text-xl">📅</span>
+      </div>
+
+      <h2 class="mt-4 text-lg font-semibold text-slate-900">
+        No appointments found
+      </h2>
+
+      <p class="mx-auto mt-2 max-w-md text-sm text-slate-500">
+        There are no appointments matching the selected filters.
+      </p>
+
+      @if (hasActiveFilters()) {
+      <button type="button"
+        class="mt-5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        (click)="clearFilters()">
+        Clear filters
+      </button>
+      }
+    </section>
+
+    } @else {
+
+    <!-- Appointments -->
+    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3" aria-label="Appointments list">
+      @for (
+      appointment of filteredAppointments();
+      track appointment.id
+      ) {
+      <app-appointment-card [appointment]="appointment" [updating]="updatingAppointmentId() === appointment.id"
+        (statusChange)="updateStatus(appointment.id, $event)" />
+      }
+    </section>
+
+    }
+    }
+  </div>
+</main>

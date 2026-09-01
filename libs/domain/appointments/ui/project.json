@@ -1,0 +1,20 @@
+{
+  "name": "ui",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/domain/appointments/ui/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["type:ui", "scope:appointments"],
+  "targets": {
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../../../coverage/libs/domain/appointments/ui"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

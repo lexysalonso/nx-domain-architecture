@@ -1,0 +1,20 @@
+{
+  "name": "features",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/domain/appointments/features/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["type:feature", "scope:appointments"],
+  "targets": {
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../../../coverage/libs/domain/appointments/features"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
