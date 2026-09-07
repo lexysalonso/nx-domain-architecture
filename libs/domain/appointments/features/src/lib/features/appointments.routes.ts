@@ -5,7 +5,7 @@ export const APPOINTMENTS_ROUTES: Routes = [
     path: '',
     loadComponent: () =>
       import('./appointments-list-container').then(
-        (m) => m.AppointmentsListContainer,
+        (m) => m.AppointmentsListContainerComponent,
       ),
   },
 ];

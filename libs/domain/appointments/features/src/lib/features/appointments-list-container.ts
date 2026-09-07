@@ -1,196 +1,135 @@
 import {
-  ChangeDetectionStrategy,
   Component,
-  DestroyRef,
-  computed,
+  ChangeDetectionStrategy,
   inject,
+  computed,
   OnInit,
-  signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
+import { AppointmentsFacade } from '@proj/domain/appointments/data-access';
 import {
-  Appointment,
-  AppointmentLocation,
-  AppointmentStatus,
+  toAppointmentViewModel,
+  ALL_STATUSES,
+  statusLabel,
 } from '@proj/domain/appointments/model';
-
-import { MockAppointmentsService } from '../../../../data-access/src';
-import { AppointmentCardComponent } from '../../../../ui/src/lib/ui/appointment-card/appointment-card';
-import { AppointmentFiltersComponent } from '../../../../ui/src/lib/ui/appointment-filters/appointment-filters';
+import { MOCK_LOCATIONS } from '@proj/domain/appointments/data-access';
+import {
+  AppointmentCardComponent,
+  AppointmentFiltersComponent,
+  EmptyStateComponent,
+} from '@proj/domain/appointments/ui';
+import { AppointmentStatus } from '@proj/domain/appointments/model';
 
 @Component({
-  selector: 'app-appointments-list-container',
+  selector: 'lib-appointments-list-container',
   standalone: true,
-  imports: [AppointmentCardComponent, AppointmentFiltersComponent],
-  templateUrl: './appointments-list-container.html',
+  imports: [
+    AppointmentCardComponent,
+    AppointmentFiltersComponent,
+    EmptyStateComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <div class="max-w-5xl mx-auto p-4 sm:p-6 space-y-4">
+      <h1 class="text-xl font-semibold text-gray-900">Appointments</h1>
+
+      <lib-appointment-filters
+        [locations]="locationOptions"
+        [statuses]="statusOptions"
+        [selectedLocationId]="facade.filters().locationId"
+        [selectedStatus]="facade.filters().status"
+        (locationChange)="facade.setLocationFilter($event)"
+        (statusChange)="facade.setStatusFilter($event)"
+        (clear)="facade.clearFilters()"
+      />
+
+      @if (facade.successMessage(); as message) {
+        <div
+          class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
+          role="status"
+          aria-live="polite"
+        >
+          <div class="flex items-center gap-2">
+            <span
+              class="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white"
+              aria-hidden="true"
+            >
+              ✓
+            </span>
+            <span>{{ message }}</span>
+          </div>
+        </div>
+      }
+
+      @if (facade.error(); as error) {
+        <section
+          class="mb-6 rounded-xl border border-red-200 bg-red-50 p-6"
+          role="alert"
+        >
+          <div
+            class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div>
+              <h2 class="font-semibold text-red-900">Something went wrong</h2>
+              <p class="mt-1 text-sm text-red-700">{{ error }}</p>
+            </div>
+            <button
+              type="button"
+              class="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              (click)="onRetry()"
+            >
+              Retry
+            </button>
+          </div>
+        </section>
+      }
+
+      @if (facade.loading()) {
+        <p class="text-sm text-gray-500" role="status" aria-live="polite">
+          Cargando appointments…
+        </p>
+      } @else if (!facade.hasAnyAppointments() && facade.hasLoadedOnce()) {
+        <lib-empty-state message="No hay appointments registrados todavía." />
+      } @else if (viewModels().length === 0 && facade.hasLoadedOnce()) {
+        <lib-empty-state
+          message="No hay appointments que coincidan con los filtros seleccionados."
+        />
+      } @else {
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          @for (vm of viewModels(); track vm.id) {
+            <lib-appointment-card
+              [appointment]="vm"
+              [isUpdating]="facade.isUpdating(vm.id)"
+              [statusOptions]="statusOptions"
+              (statusChange)="onStatusChange(vm.id, $event)"
+            />
+          }
+        </div>
+      }
+    </div>
+  `,
 })
-export class AppointmentsListContainer implements OnInit {
-  private readonly appointmentsService = inject(MockAppointmentsService);
-  private readonly destroyRef = inject(DestroyRef);
+export class AppointmentsListContainerComponent implements OnInit {
+  protected readonly facade = inject(AppointmentsFacade);
 
-  // -------------------------
-  // State
-  // -------------------------
+  protected readonly locationOptions = MOCK_LOCATIONS;
+  protected readonly statusOptions = ALL_STATUSES.map((status) => ({
+    value: status,
+    label: statusLabel(status),
+  }));
 
-  readonly appointments = signal<Appointment[]>([]);
-
-  readonly loading = signal(false);
-
-  readonly error = signal<string | null>(null);
-
-  readonly selectedLocation = signal<string | null>(null);
-
-  readonly selectedStatus = signal<AppointmentStatus | null>(null);
-
-  /**
-   * ID del appointment que actualmente
-   * está siendo actualizado.
-   */
-  readonly updatingAppointmentId = signal<string | null>(null);
-
-  /**
-   * Mensaje temporal de éxito.
-   */
-  readonly successMessage = signal<string | null>(null);
-
-  // -------------------------
-  // Derived state
-  // -------------------------
-
-  readonly locations = computed<AppointmentLocation[]>(() => {
-    const locations = this.appointments().map(
-      (appointment) => appointment.location,
-    );
-
-    const uniqueLocations = new Map(
-      locations.map((location) => [location.id, location]),
-    );
-
-    return [...uniqueLocations.values()];
-  });
-
-  readonly filteredAppointments = computed(() => {
-    const locationId = this.selectedLocation();
-    const status = this.selectedStatus();
-
-    return this.appointments().filter((appointment) => {
-      const matchesLocation =
-        !locationId || appointment.location.id === locationId;
-
-      const matchesStatus = !status || appointment.status === status;
-
-      return matchesLocation && matchesStatus;
-    });
-  });
-
-  readonly hasActiveFilters = computed(
-    () => this.selectedLocation() !== null || this.selectedStatus() !== null,
+  protected readonly viewModels = computed(() =>
+    this.facade.appointments().map(toAppointmentViewModel),
   );
 
-  // -------------------------
-  // Lifecycle
-  // -------------------------
-
   ngOnInit(): void {
-    this.loadAppointments();
+    this.facade.loadAppointments();
   }
 
-  // -------------------------
-  // Data
-  // -------------------------
-
-  loadAppointments(): void {
-    this.loading.set(true);
-    this.error.set(null);
-
-    this.appointmentsService
-      .getAppointments()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (appointments) => {
-          this.appointments.set(appointments);
-          this.loading.set(false);
-        },
-
-        error: () => {
-          this.error.set(
-            'We could not load the appointments. Please try again.',
-          );
-
-          this.loading.set(false);
-        },
-      });
+  onRetry(): void {
+    this.facade.loadAppointments();
   }
 
-  // -------------------------
-  // Filters
-  // -------------------------
-
-  onLocationChange(locationId: string | null): void {
-    this.selectedLocation.set(locationId);
-  }
-
-  onStatusChange(status: AppointmentStatus | null): void {
-    this.selectedStatus.set(status);
-  }
-
-  clearFilters(): void {
-    this.selectedLocation.set(null);
-    this.selectedStatus.set(null);
-  }
-
-  // -------------------------
-  // Update status
-  // -------------------------
-
-  updateStatus(appointmentId: string, status: AppointmentStatus): void {
-    /**
-     * Evita iniciar otra actualización mientras
-     * existe una actualización en progreso.
-     */
-    if (this.updatingAppointmentId() !== null) {
-      return;
-    }
-
-    this.updatingAppointmentId.set(appointmentId);
-    this.error.set(null);
-    this.successMessage.set(null);
-
-    this.appointmentsService
-      .updateAppointmentStatus(appointmentId, status)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (updatedAppointment) => {
-          this.appointments.update((appointments) =>
-            appointments.map((appointment) =>
-              appointment.id === updatedAppointment.id
-                ? updatedAppointment
-                : appointment,
-            ),
-          );
-
-          this.updatingAppointmentId.set(null);
-
-          this.successMessage.set('Appointment status updated successfully.');
-
-          this.clearSuccessMessage();
-        },
-
-        error: () => {
-          this.updatingAppointmentId.set(null);
-
-          this.error.set(
-            'We could not update the appointment status. Please try again.',
-          );
-        },
-      });
-  }
-
-  private clearSuccessMessage(): void {
-    setTimeout(() => {
-      this.successMessage.set(null);
-    }, 3000);
+  onStatusChange(id: string, status: AppointmentStatus): void {
+    this.facade.updateStatus(id, status);
   }
 }
