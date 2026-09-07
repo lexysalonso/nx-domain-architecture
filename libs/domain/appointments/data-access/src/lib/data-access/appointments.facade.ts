@@ -1,9 +1,16 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import {
+  DestroyRef,
+  Injectable,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import {
   Appointment,
   AppointmentStatus,
 } from '@proj/domain/appointments/model';
 import { MockAppointmentsService } from './mock-appointments.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface AppointmentFilters {
   locationId: string | null;
@@ -13,6 +20,7 @@ export interface AppointmentFilters {
 @Injectable({ providedIn: 'root' })
 export class AppointmentsFacade {
   private readonly service = inject(MockAppointmentsService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly _appointments = signal<Appointment[]>([]);
   private readonly _loading = signal<boolean>(false);
@@ -47,20 +55,23 @@ export class AppointmentsFacade {
     this._loading.set(true);
     this._error.set(null);
 
-    this.service.getAppointments().subscribe({
-      next: (appointments) => {
-        this._appointments.set(appointments);
-        this._loading.set(false);
-        this._hasLoadedOnce.set(true);
-      },
-      error: () => {
-        this._error.set(
-          'No se pudieron cargar los appointments. Intentá de nuevo.',
-        );
-        this._loading.set(false);
-        this._hasLoadedOnce.set(true);
-      },
-    });
+    this.service
+      .getAppointments()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (appointments) => {
+          this._appointments.set(appointments);
+          this._loading.set(false);
+          this._hasLoadedOnce.set(true);
+        },
+        error: () => {
+          this._error.set(
+            'No se pudieron cargar los appointments. Intentá de nuevo.',
+          );
+          this._loading.set(false);
+          this._hasLoadedOnce.set(true);
+        },
+      });
   }
 
   isUpdating(id: string): boolean {
@@ -74,20 +85,23 @@ export class AppointmentsFacade {
 
     this._addUpdatingId(id);
 
-    this.service.updateAppointmentStatus(id, status).subscribe({
-      next: (updated) => {
-        this._appointments.update((list) =>
-          list.map((a) => (a.id === id ? updated : a)),
-        );
-        this._removeUpdatingId(id);
-        this._successMessage.set('Estado actualizado correctamente.');
-        this._clearSuccessMessageAfterDelay();
-      },
-      error: () => {
-        this._error.set('No se pudo actualizar el estado del appointment.');
-        this._removeUpdatingId(id);
-      },
-    });
+    this.service
+      .updateAppointmentStatus(id, status)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updated) => {
+          this._appointments.update((list) =>
+            list.map((a) => (a.id === id ? updated : a)),
+          );
+          this._removeUpdatingId(id);
+          this._successMessage.set('Estado actualizado correctamente.');
+          this._clearSuccessMessageAfterDelay();
+        },
+        error: () => {
+          this._error.set('No se pudo actualizar el estado del appointment.');
+          this._removeUpdatingId(id);
+        },
+      });
   }
 
   setLocationFilter(locationId: string | null): void {

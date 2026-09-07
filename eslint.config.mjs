@@ -37,7 +37,7 @@ export default [
         {
           enforceBuildableLibDependency: true,
           depConstraints: [
-            { sourceTag: 'scope:app', onlyDependOnLibsWithTags: ['scope:core', 'scope:shared', 'scope:clientes', 'scope:products'] },
+            { sourceTag: 'scope:app', onlyDependOnLibsWithTags: ['scope:core', 'scope:shared', 'scope:clientes', 'scope:products', 'scope:appointments'] },
             { sourceTag: 'scope:core', onlyDependOnLibsWithTags: ['scope:core'] },
             { sourceTag: 'scope:shared', onlyDependOnLibsWithTags: ['scope:shared', 'scope:core'] },
             { sourceTag: 'scope:clientes', onlyDependOnLibsWithTags: ['scope:clientes', 'scope:shared', 'scope:core'] },
