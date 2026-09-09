@@ -1,101 +1,66 @@
-# NxDomainArchitecture
+# Nx Domain Architecture Scaffold
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+Arquitectura escalable basada en dominios para aplicaciones **Angular 19** en un monorepo **Nx**. Este proyecto implementa un patrón de arquitectura hexagonal/screaming architecture enfocado en la separación de responsabilidades y la mantenibilidad a largo plazo.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+## 🏗️ Filosofía de Arquitectura
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/tutorials/angular-standalone-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+El proyecto está diseñado bajo un modelo de **4 capas por dominio**, impuestas mediante `ESLint module boundaries`:
 
-## Run tasks
+1.  **`model`**: Tipos, interfaces y mappers puros. Sin dependencias de Angular ni de librerías externas.
+2.  **`data-access`**: Facades y servicios HTTP. El Facade es el contrato único hacia las capas superiores.
+3.  **`features`**: Containers (smart components). Orquestan el estado (facades) y manejan la lógica de navegación.
+4.  **`ui`**: Componentes presentacionales (dumb). Solo `input()`/`output()` (signals). Cero lógica de negocio.
 
-To run the dev server for your app, use:
+### Reglas de Oro
+*   **Container/Presentational**: Los componentes UI son tontos; los containers son inteligentes.
+*   **Facade Pattern**: Features nunca consumen el `Service` directo. El Facade abstrae la complejidad asíncrona.
+*   **Boundary Enforcement**: El linter (`@nx/enforce-module-boundaries`) bloquea importaciones ilegales entre dominios o entre capas prohibidas (ej: `ui` no puede importar `data-access`).
 
-```sh
-npx nx serve nx-domain-architecture
+## 🛠 Tech Stack
+*   **Angular 19.2** (Standalone + Signals)
+*   **Nx Monorepo**
+*   **Tailwind CSS 3.4**
+*   **RxJS** (integrado con signals vía `takeUntilDestroyed`)
+*   **Vitest** (configurado en workspace)
+
+## 📂 Estructura
+```text
+apps/
+  shell/              # Entry point de la aplicación
+libs/
+  core/               # Interceptors, InjectionTokens, utils globales
+  shared/             # UI kit, componentes transversales
+  domain/
+    {dominio}/
+      model/          # Contratos y tipos
+      data-access/    # Services y Facades
+      features/       # Smart Containers y Rutas
+      ui/             # Presentational Components
 ```
 
-To create a production bundle:
+## 🚀 Comandos de Desarrollo
 
-```sh
-npx nx build nx-domain-architecture
+### Instalar dependencias
+```bash
+npm install
 ```
 
-To see all available targets to run for a project, run:
-
-```sh
-npx nx show project nx-domain-architecture
+### Ejecutar la aplicación
+```bash
+npx nx serve shell
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
-
-```sh
-npx nx g @nx/angular:app demo
+### Linting (Validación de Arquitectura)
+Para verificar que se respetan los boundaries definidos en el linter:
+```bash
+npx nx run-many -t lint
 ```
 
-To generate a new library, use:
-
-```sh
-npx nx g @nx/angular:lib mylib
+### Testing
+```bash
+npx nx run-many -t test
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+---
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
-```
-
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/getting-started/tutorials/angular-standalone-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+*Proyecto configurado para pruebas técnicas. La estructura de dominios está blindada y lista para implementar nuevas funcionalidades escalables.*
