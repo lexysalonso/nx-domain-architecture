@@ -11,6 +11,11 @@ El proyecto está diseñado bajo un modelo de **4 capas por dominio**, impuestas
 3.  **`features`**: Containers (smart components). Orquestan el estado (facades) y manejan la lógica de navegación.
 4.  **`ui`**: Componentes presentacionales (dumb). Solo `input()`/`output()` (signals). Cero lógica de negocio.
 
+### Reglas de Rendimiento y Reactividad
+*   **OnPush Everywhere**: Todos los componentes utilizan `ChangeDetectionStrategy.OnPush` para maximizar el rendimiento.
+*   **Signals-First**: Gestión de estado reactivo mediante `signal()`, `computed()` para derivados y `effect()` cuando es necesario.
+*   **Zona-less readiness**: La arquitectura está preparada para trabajar en entornos sin Zone.js gracias al uso intensivo de Signals.
+
 ### Reglas de Oro
 *   **Container/Presentational**: Los componentes UI son tontos; los containers son inteligentes.
 *   **Facade Pattern**: Features nunca consumen el `Service` directo. El Facade abstrae la complejidad asíncrona.
