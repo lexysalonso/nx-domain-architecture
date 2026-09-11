@@ -17,14 +17,6 @@ export const appRoutes: Route[] = [
     path: '**',
     redirectTo: 'appointments',
   },
-  /* {
-    path: 'clientes',
-    loadChildren: () =>
-      import('@proj/domain/clientes/features').then((m) => m.CLIENTES_ROUTES),
-  },
-  {
-    path: 'products',
-    loadChildren: () =>
-      import('@proj/domain/products/features').then((m) => m.PRODUCTS_ROUTES),
-  }, */
+  // ✅ En espera de dominio 2 (clientes) - pendiente estructura
+  // ✅ En espera de dominio 3 (productos) - pendiente placeholder
 ];
